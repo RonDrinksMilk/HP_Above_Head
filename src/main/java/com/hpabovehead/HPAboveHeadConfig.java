@@ -1,9 +1,6 @@
 package com.hpabovehead;
 
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigItem;
-import net.runelite.client.config.Range;
+import net.runelite.client.config.*;
 
 import java.awt.*;
 
@@ -46,17 +43,17 @@ public interface HPAboveHeadConfig extends Config
 	)
 	default FontOption font()
 	{
-		return FontOption.ARIAL;
+		return FontOption.VERDANA;
 	}
 
 	@ConfigItem(
 			keyName = "color",
-			name = "Text Color",
-			description = "Color of the text above the HP bar"
+			name = "Text Colour",
+			description = "Colour of the text above the HP bar"
 	)
 	default Color color()
 	{
-		return Color.WHITE;
+		return Color.GREEN;
 	}
 
 	@ConfigItem(
@@ -66,7 +63,7 @@ public interface HPAboveHeadConfig extends Config
 	)
 	default int textHeightOffset()
 	{
-		return 30;
+		return 47;
 	}
 
 	@ConfigItem(
@@ -78,4 +75,26 @@ public interface HPAboveHeadConfig extends Config
 	{
 		return 0;
 	}
+
+	@ConfigItem(
+			keyName = "showBackground",
+			name = "Show Background",
+			description = "Draw a background behind the HP text"
+	)
+	default boolean showBackground()
+	{
+		return true;
+	}
+
+	@Alpha
+	@ConfigItem(
+			keyName = "backgroundColor",
+			name = "Background Colour",
+			description = "Colour of the HP text background"
+	)
+	default Color backgroundColor()
+	{
+		return new Color(0, 0, 0, 125); // semi-transparent black
+	}
+
 }

@@ -23,7 +23,7 @@ public class HPAboveHeadOverlay extends Overlay
         this.client = client;
         this.config = config;
         setPosition(OverlayPosition.DYNAMIC);
-        setLayer(OverlayLayer.ABOVE_SCENE);
+        setLayer(OverlayLayer.ALWAYS_ON_TOP);
         setPriority(OverlayPriority.MED);
     }
 
@@ -31,12 +31,7 @@ public class HPAboveHeadOverlay extends Overlay
     public Dimension render(Graphics2D g)
     {
         Player localPlayer = client.getLocalPlayer();
-        if (localPlayer == null)
-        {
-            return null;
-        }
-
-        if (localPlayer.getHealthScale() <= 0)
+        if (localPlayer == null || localPlayer.getHealthScale() <= 0)
         {
             return null;
         }
@@ -45,37 +40,43 @@ public class HPAboveHeadOverlay extends Overlay
         int currentHp = client.getBoostedSkillLevel(Skill.HITPOINTS);
         String text = currentHp + "/" + maxHp;
 
-        // setting font
+        // set font
         g.setFont(new Font(config.font().name(), Font.PLAIN, config.fontSize()));
+        FontMetrics metrics = g.getFontMetrics();
+        int textWidth = metrics.stringWidth(text);
+        int textHeight = metrics.getHeight();
 
-        // calc height as player height + config offset
+        // calc height (player's logical height + offset)
         int height = localPlayer.getLogicalHeight() + config.textHeightOffset();
-
-        // get local player pos
         net.runelite.api.coords.LocalPoint localLocation = localPlayer.getLocalLocation();
-
-        // convert 3D point to 2D canvas coords
         net.runelite.api.Point canvasPoint = Perspective.localToCanvas(client, localLocation, client.getPlane(), height);
 
         if (canvasPoint != null)
         {
-            // horizontal offset
-            int x = canvasPoint.getX() + config.textXOffset();
+            // centre the text and apply horizontal offset
+            int x = canvasPoint.getX() - (textWidth / 2) + config.textXOffset();
+            int y = canvasPoint.getY();
 
-            FontMetrics metrics = g.getFontMetrics();
-            int textWidth = metrics.stringWidth(text);
+            // optional background box
+            if (config.showBackground())
+            {
+                int padding = 2;
+                int boxX = x - padding;
+                int boxY = y - textHeight + 4;
+                int boxWidth = textWidth + padding * 2;
+                int boxHeight = textHeight;
 
-            // centre text horizontally on x
-            int drawX = x - (textWidth / 2);
-            int drawY = canvasPoint.getY();
+                g.setColor(config.backgroundColor());
+                g.fillRect(boxX, boxY, boxWidth, boxHeight);
+            }
 
-            // shadow
+            // optional shadow
             g.setColor(Color.BLACK);
-            g.drawString(text, drawX + 1, drawY + 1);
+            g.drawString(text, x + 1, y + 1);
 
-            // text
+            // HP text
             g.setColor(config.color());
-            g.drawString(text, drawX, drawY);
+            g.drawString(text, x, y);
         }
 
         return null;
